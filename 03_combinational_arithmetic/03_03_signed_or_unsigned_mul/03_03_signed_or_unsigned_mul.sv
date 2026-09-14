@@ -53,4 +53,15 @@ module signed_or_unsigned_mul
   output [2 * n - 1:0] res
 );
 
+logic [2 * n - 1:0] res_internal;
+    
+  always_comb begin
+    if (signed_mul)
+        res_internal = $signed(a) * $signed(b);
+    else
+        res_internal = a * b;
+  end;
+
+  assign res = res_internal;
+
 endmodule

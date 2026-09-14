@@ -36,5 +36,17 @@ module signed_add_with_saturation
   // and the arguments are negative,
   // the sum should be set to the minimum negative number.
 
+  logic [3:0] comb_sum;
+
+  always_comb begin
+    comb_sum = a + b;
+    if ((a[3] == b[3]) && (comb_sum[3] != a[3]))
+      if (comb_sum[3])
+        comb_sum = 4'b0111;
+      else
+        comb_sum = 4'b1000;    
+  end
+  
+  assign sum = comb_sum;
 
 endmodule

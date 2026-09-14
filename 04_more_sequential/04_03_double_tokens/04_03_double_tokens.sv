@@ -25,5 +25,25 @@ module double_tokens
     // a -> 10010011000110100001100100
     // b -> 11011011110111111001111110
 
+    logic [7:0] cnt;
+
+    always_ff @ (posedge clk)
+    if (rst) begin
+        overflow <= '0;
+        cnt      <= '0;
+    end
+    
+    else if (a) begin
+        if (cnt == 8'd200)
+            overflow <= 1'b1; 
+        else
+            cnt <= cnt + 1;
+    end
+    
+    else if (cnt > 0)
+        cnt <= cnt - 1'b1;
+    
+    assign b = a | (cnt > 0);
+
 
 endmodule
