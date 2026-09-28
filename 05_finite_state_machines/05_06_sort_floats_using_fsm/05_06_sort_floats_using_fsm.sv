@@ -36,6 +36,80 @@ module sort_floats_using_fsm (
     // The FLEN parameter is defined in the "import/preprocessed/cvw/config-shared.vh" file
     // and usually equal to the bit width of the double-precision floating-point number, FP64, 64 bits.
 
+    enum logic [1:0]
+    {
+        IDLE = 2'd0,
+        S1   = 2'd1,
+        S2   = 2'd2,
+        S3   = 2'd3
+    }
+    state, next_state;
 
+    //FSM
+    always_comb begin
+        next_state = state;
+
+        case (state)
+        IDLE :  if (valid_in)  next_state = S1;
+        S1   :                 next_state = S2;
+        S2   :                 next_state = S3;
+        S3   :                 next_state = IDLE;
+        endcase        
+    end
+
+    always_ff @ (posedge clk)
+        if (rst)
+            state <= IDLE;
+        else
+            state <= next_state;
+
+    assign busy = (state != IDLE);    
+
+    //Sorting
+    always_comb begin
+        f_le_a = '0;
+        f_le_b = '0;
+    
+        case (state)
+        S1  : begin 
+            f_le_a = sorted[0]; 
+            f_le_b = sorted[1]; 
+        end
+        S2  : begin 
+            f_le_a = sorted[1]; 
+            f_le_b = sorted[2]; 
+        end
+        S3  : begin 
+            f_le_a = sorted[0]; 
+            f_le_b = sorted[1]; 
+        end
+        endcase
+    end
+
+    always_ff @ (posedge clk)
+        if (rst)
+            sorted <= '0;
+        else
+            case(state)
+            IDLE : if ( valid_in)               sorted       <=    unsorted                ;
+            S1   : if (~f_le_res) { sorted [0], sorted [1] } <=  { sorted [1], sorted [0] };
+            S2   : if (~f_le_res) { sorted [1], sorted [2] } <=  { sorted [2], sorted [1] };
+            S3   : if (~f_le_res) { sorted [0], sorted [1] } <=  { sorted [1], sorted [0] };
+            endcase  
+
+    //Result
+    always_ff @ (posedge clk)
+        if (rst)
+            err <= '0;
+        else if (state == IDLE)
+            err <= '0;
+        else if (~err & f_le_err)
+            err <= 1'b1; 
+
+    always_ff @ (posedge clk)
+        if (rst)
+            valid_out <= '0;
+        else
+            valid_out <= (state == S3);  
 
 endmodule
