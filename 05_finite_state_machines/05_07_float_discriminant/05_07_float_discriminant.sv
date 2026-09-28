@@ -130,11 +130,11 @@ module float_discriminant (
                                                 mult_b        = b           ;
                     end            
         WAIT_BB  :   if (mult_down_valid) begin mult_up_valid = 1'b1        ;
-                                                mult_a        = temp_reg      ;
+                                                mult_a        = temp_reg    ;
                                                 mult_b        = four        ;
                     end              
         WAIT_4AC :   if (mult_down_valid) begin sub_up_valid  = 1'b1        ;      
-                                                sub_a         = temp_reg      ;
+                                                sub_a         = temp_reg    ;
                                                 sub_b         = mult_res    ;
                     end    
         endcase
