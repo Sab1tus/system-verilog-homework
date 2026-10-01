@@ -30,5 +30,72 @@ module put_in_order
     // The idea of the block is kinda similar to the "parallel_to_serial" block
     // from Homework 2, but here block should also preserve the output order.
 
+    logic [ $clog2 (n_inputs) - 1:0] ptr;
+
+    logic [   width - 1:0] buf_data [n_inputs];
+
+    logic [n_inputs -1 :0] buf_vld;
+
+    logic                  down_vld_comb;
+    logic [   width - 1:0] down_data_comb;
+
+    //Buffer logic
+
+    always_comb begin
+        down_vld_comb  = '0;
+        down_data_comb = '0;    
+
+        if (buf_vld [ptr]) begin
+            down_vld_comb  = 1'b1;
+            down_data_comb = buf_data [ptr];
+        end
+
+        else if (up_vlds[ptr]) begin
+            down_vld_comb  = 1'b1;
+            down_data_comb = up_data [ptr];
+        end
+    end
+
+    assign down_vld  = down_vld_comb;
+    assign down_data = down_data_comb;
+
+    //Data pointer
+
+    always_ff @ (posedge clk)
+        if (rst)
+            ptr <= '0;
+        else if (down_vld_comb)
+            if (ptr == n_inputs - 1)
+                ptr <= '0; 
+            else
+                ptr <= ptr + 1'b1;
+
+    always_ff @ (posedge clk) begin
+        if (rst)
+            buf_vld <= '0;
+        else 
+            for (int i = 0; i < n_inputs; i++) begin
+
+                if (ptr == i)
+                    if (buf_vld [i])  
+                        buf_vld [i] <= up_vlds [i];
+                    else              
+                        buf_vld [i] <= '0;
+                else if (up_vlds [i]) 
+                    buf_vld [i] <= 1'b1;
+
+            end
+    end
+
+    //Get data into buffer in case it's not current channel or the data've been read
+
+    always_ff @ (posedge clk) 
+        for (int i = 0; i < n_inputs; i++) begin
+
+            if (up_vlds [i] && (ptr != i || buf_vld [i])) 
+                buf_data [i] <= up_data [i];
+
+        end
+
 
 endmodule

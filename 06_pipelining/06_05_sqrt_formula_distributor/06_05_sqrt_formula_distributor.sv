@@ -1,6 +1,6 @@
 module sqrt_formula_distributor
 # (
-    parameter formula = 1,
+    parameter formula = 2,
               impl    = 1
 )
 (
@@ -43,5 +43,93 @@ module sqrt_formula_distributor
     // Instantiate sufficient number of "formula_1_impl_1_top", "formula_1_impl_2_top",
     // or "formula_2_top" modules to achieve desired performance.
 
+    localparam N = 35;
+
+    logic [ $clog2 (N) - 1:0] cnt;    
+
+    logic        inst_arg_vld [N];
+    logic [31:0] inst_a       [N];
+    logic [31:0] inst_b       [N];
+    logic [31:0] inst_c       [N];
+
+    logic        inst_res_vld [N];
+    logic [31:0] inst_res     [N];
+
+    logic        res_vld_comb;
+    logic [31:0] res_comb;
+
+    //Counter 
+
+    always_ff @ (posedge clk)
+        if (rst)
+            cnt <= '0;
+        else if (arg_vld)
+            if (cnt == N - 1)
+                cnt <= '0;
+            else 
+                cnt <= cnt + 1'b1;
+
+    //Instantiation of modules
+
+    genvar i;
+
+    generate
+        for (i = 0; i < N; i++) begin
+            
+            //Registers
+
+            always_ff @ (posedge clk)
+                if (rst)
+                    inst_arg_vld [i] <= 1'b0;
+                else
+                    inst_arg_vld [i] <= arg_vld && (cnt == i);
+
+            always_ff @ (posedge clk)
+                if (arg_vld && (cnt == i)) begin
+                    inst_a [i] <= a;
+                    inst_b [i] <= b;
+                    inst_c [i] <= c;
+                end
+
+
+            `define CONNECTIONS              \
+            .clk     ( clk              ),   \
+            .rst     ( rst              ),   \   
+            .arg_vld ( inst_arg_vld [i] ),   \
+            .a       ( inst_a       [i] ),   \
+            .b       ( inst_b       [i] ),   \
+            .c       ( inst_c       [i] ),   \
+            .res_vld ( inst_res_vld [i] ),   \
+            .res     ( inst_res     [i] )    
+
+
+            if (formula == 1 && impl == 1)
+                formula_1_impl_1_top inst_form_1_impl_1 ( `CONNECTIONS );
+
+            else if (formula == 1 && impl == 2) 
+                formula_1_impl_2_top inst_form_1_impl_1 ( `CONNECTIONS );
+
+            else if (formula == 2)
+                formula_2_top        inst_form_1_impl_1 ( `CONNECTIONS );
+
+            `undef CONNECTIONS
+        end
+    endgenerate
+
+    //Result
+
+    always_comb begin
+        res_vld_comb = '0;
+        res_comb     = '0;
+
+        for (int j = 0; j < N; j++)
+            if (inst_res_vld [j]) begin
+                res_vld_comb = 1'b1;
+                res_comb     = inst_res [j];
+            end
+    end
+
+    assign res_vld = res_vld_comb;
+    assign res     = res_comb;
 
 endmodule

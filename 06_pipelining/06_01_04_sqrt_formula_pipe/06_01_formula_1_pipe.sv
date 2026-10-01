@@ -42,5 +42,54 @@ module formula_1_pipe
     // FPGA-Systems Magazine :: FSM :: Issue ALFA (state_0)
     // You can download this issue from https://fpga-systems.org/fsm#state_0
 
+    wire  [31:0] res_a, res_b, res_c;
+    wire  [31:0] sum;
+    wire         isqrt_1_vld;
+
+    logic        res_vld_ff;
+    logic [31:0] res_ff;
+
+    isqrt isqrt_1 (
+        .clk     ( clk         ),
+        .rst     ( rst         ),
+        .x_vld   ( arg_vld     ),
+        .x       ( a           ),
+        .y_vld   ( isqrt_1_vld ),
+        .y       ( res_a       )        
+    );
+
+    isqrt isqrt_2 (
+        .clk     ( clk         ),
+        .rst     ( rst         ),
+        .x_vld   ( arg_vld     ),
+        .x       ( b           ),
+        .y_vld   (             ),
+        .y       ( res_b       )        
+    );
+
+    isqrt isqrt_3 (
+        .clk     ( clk         ),
+        .rst     ( rst         ),
+        .x_vld   ( arg_vld     ),
+        .x       ( c           ),
+        .y_vld   (             ),
+        .y       ( res_c       )         
+    );
+
+    assign sum = res_a + res_b + res_c;
+
+    always_ff @ (posedge clk)
+        if (rst)
+            res_vld_ff <= '0;
+        else 
+            res_vld_ff <= isqrt_1_vld;
+
+
+    always_ff @ (posedge clk) 
+        if (isqrt_1_vld)
+            res_ff <= sum;
+    
+    assign res_vld = res_vld_ff;
+    assign res     = res_ff;
 
 endmodule
