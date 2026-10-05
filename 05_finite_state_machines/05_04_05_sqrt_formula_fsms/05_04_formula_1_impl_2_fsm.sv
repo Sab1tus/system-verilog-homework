@@ -41,7 +41,6 @@ module formula_1_impl_2_fsm
     // FPGA-Systems Magazine :: FSM :: Issue ALFA (state_0)
     // You can download this issue from https://fpga-systems.org/fsm#state_0
 
-   //------------------------------------------------------------------------
     // States
 
     enum logic [1:0]
@@ -52,7 +51,6 @@ module formula_1_impl_2_fsm
     }
     state, next_state;
 
-    //------------------------------------------------------------------------
     // Next state and isqrt interface
 
     always_comb
@@ -98,7 +96,6 @@ module formula_1_impl_2_fsm
 
     end
 
-    //------------------------------------------------------------------------
     // Assigning next state
 
     always_ff @ (posedge clk)
@@ -107,9 +104,8 @@ module formula_1_impl_2_fsm
         else
             state <= next_state;
 
-    //------------------------------------------------------------------------
     // Accumulating the result
-
+    
     always_ff @ (posedge clk)
         if (rst)
             res_vld <= '0;

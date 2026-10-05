@@ -27,32 +27,27 @@ module serial_to_parallel
     // Note:
     // Check the waveform diagram in the README for better understanding.
 
-    logic [             width - 1:  0] preliminary_res, parallel_res;
-    logic [$clog2 (width + 1) - 1:  0] cnt;
-    logic                vld;
-
-    always_ff @ (posedge clk) begin
-        if (rst) begin
-            vld             <= '0;
+    logic [        width  - 2:  0] preliminary_res;
+    logic [$clog2 (width) - 1:  0] cnt;
+    logic                              vld;
+    
+    always_ff @ (posedge clk)
+        if (rst)
             preliminary_res <= '0;
-            cnt             <= '0;
-        end
-        else begin
-            vld <= '0;
-            if (serial_valid)
-                if (cnt == width - 1'b1) begin
-                    parallel_res <= { serial_data, preliminary_res[width - 2:0] };
-                    vld          <= 1'b1;
-                    cnt          <= '0;
-                end        
-                else begin
-                    preliminary_res [cnt] <= serial_data;
-                    cnt                   <= cnt + 1'b1;
-                end
-        end
-    end
+        else if (serial_valid && cnt != width - 1'b1)
+            preliminary_res [cnt] <= serial_data;
 
-    assign parallel_data  = parallel_res;
-    assign parallel_valid = vld;
+    always_ff @ (posedge clk)
+        if (rst)
+            cnt <= '0;
+        else if (serial_valid) begin
+            if (cnt == width - 1'b1)
+                cnt <= '0;
+            else 
+                cnt <= cnt + 1'b1;
+        end
+
+    assign parallel_valid = serial_valid && (cnt == width - 1'b1);
+    assign parallel_data  = { serial_data, preliminary_res };
 
 endmodule

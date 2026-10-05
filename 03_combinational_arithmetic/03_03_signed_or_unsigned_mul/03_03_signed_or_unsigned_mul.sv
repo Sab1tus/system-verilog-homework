@@ -43,25 +43,22 @@ endmodule
 // that produces either signed or unsigned result
 // of the multiplication depending on the 'signed_mul' input bit.
 
-module signed_or_unsigned_mul
-# (
-  parameter n = 8
-)
-(
-  input  [    n - 1:0] a, b,
-  input                signed_mul,
-  output [2 * n - 1:0] res
-);
+  module signed_or_unsigned_mul
+  # (
+    parameter n = 8
+  )
+  (
+    input  [    n - 1:0] a, b,
+    input                signed_mul,
+    output [2 * n - 1:0] res
+  );
 
-logic [2 * n - 1:0] res_internal;
-    
-  always_comb begin
-    if (signed_mul)
-        res_internal = $signed(a) * $signed(b);
-    else
-        res_internal = a * b;
-  end;
+  wire signed [    n - 1:0] a_signed     = a;
+  wire signed [    n - 1:0] b_signed     = b;
 
-  assign res = res_internal;
+  wire signed [2 * n - 1:0] res_signed   = a_signed * b_signed;
+  wire        [2 * n - 1:0] res_unsigned = a * b;
+
+  assign res = signed_mul ? res_signed : res_unsigned;
 
 endmodule

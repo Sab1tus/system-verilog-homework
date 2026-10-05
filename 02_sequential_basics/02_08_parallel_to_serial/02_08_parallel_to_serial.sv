@@ -33,37 +33,57 @@ module parallel_to_serial
     logic [$clog2 (width + 1) - 1:  0] cnt;
     logic                              vld, active;
 
-    always_ff @ (posedge clk) begin
-        if (rst) begin
-            vld             <= '0;
-            parallel_input  <= '0;
-            cnt             <= '0;
-            active          <= '0;
+    //Saving input
+
+    always_ff @ (posedge clk) 
+        if (rst)
+            parallel_input <= '0;
+        else if (parallel_valid)
+            parallel_input <= parallel_data;
+
+    //Active flag
+
+    always_ff @ (posedge clk)
+        if (rst)
+            active <= '0;
+        else if (parallel_valid)
+            active <= 1'b1;
+        else if (active && cnt == width - 1'b1)
+            active <= '0;
+
+    //Counter
+
+    always_ff @ (posedge clk)
+        if (rst)
+            cnt <= '0;
+        else if (parallel_valid)
+            cnt <= cnt + 1'b1;
+        else if (active) begin
+            if (cnt == width - 1'b1)
+                cnt <= '0;
+            else
+                cnt <= cnt + 1'b1;
         end
-        else begin
+
+    //Result 
+    
+    always_ff @ (posedge clk)
+        if (rst)
+            serial_data <= '0;
+        else if (parallel_valid)
+            serial_data <= parallel_data [0];
+        else if (active)
+            serial_data <= parallel_input [cnt];
+
+    always_ff @ (posedge clk)
+        if (rst)
             vld <= '0;
-            if (parallel_valid) begin
-                parallel_input  <= parallel_data;
-                serial_data     <= parallel_data [0];
-                vld             <= 1'b1;
-                active          <= 1'b1;
-                cnt             <= cnt + 1'b1;
-            end
-            else if (active) begin
-                serial_data <= parallel_input [cnt];            
-                vld         <= 1'b1;                   
-                if (cnt == width - 1'b1) begin
-                    active <= '0;
-                    cnt    <= '0;
-                end
-                else
-                    cnt <= cnt + 1'b1;                                     
-            end
-        end
-    end
+        else if (parallel_valid || active)
+            vld <= 1'b1;
+        else
+            vld <= '0;
 
     assign busy         = active && ~cnt;    
     assign serial_valid = vld;
-
 
 endmodule

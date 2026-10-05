@@ -35,14 +35,10 @@ module round_robin_arbiter_with_2_requests
 
     assign grants = grants_comb;
 
-    always_ff @ (posedge clk) begin
-        if (rst) begin
+    always_ff @ (posedge clk)
+        if (rst)
             next_in_line <= '0;
-        end
-        else if (grants_comb[0])
-            next_in_line <= 1'b1;
-        else if (grants_comb[1])
-            next_in_line <= 1'b0;
-    end
+        else if (|grants)
+            next_in_line <= grants [0];
 
 endmodule
