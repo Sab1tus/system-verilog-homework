@@ -76,13 +76,13 @@ module serial_divisibility_by_5_using_fsm
   // Check manually how the remainder changes under such modulo.
 
   // States
-  enum logic[2:0]
+  enum logic[4:0]
   {
-     mod_0 = 3'b000,
-     mod_1 = 3'b001,
-     mod_2 = 3'b010,
-     mod_3 = 3'b011,
-     mod_4 = 3'b100
+     mod_0 = 5'b00001,
+     mod_1 = 5'b00010,
+     mod_2 = 5'b00100,
+     mod_3 = 5'b01000,
+     mod_4 = 5'b10000
   }
   state, new_state;
 

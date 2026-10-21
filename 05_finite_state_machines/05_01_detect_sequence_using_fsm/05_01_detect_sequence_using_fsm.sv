@@ -67,7 +67,7 @@ module detect_6_bit_sequence_using_fsm
   input  clk,
   input  rst,
   input  a,
-  output detected
+  output logic detected
 );
 
   // Task:
@@ -82,8 +82,7 @@ module detect_6_bit_sequence_using_fsm
      S2   = 3'b010,
      S3   = 3'b011,
      S4   = 3'b100,
-     S5   = 3'b101,
-     S6   = 3'b110
+     S5   = 3'b101
   }
   state, new_state;
 
@@ -100,14 +99,16 @@ module detect_6_bit_sequence_using_fsm
             else     new_state = S1;
       S4:   if (  a) new_state = S5;
             else     new_state = IDLE;
-      S5:   if (  a) new_state = S6;
-            else     new_state = IDLE; 
-      S6:   if (  a) new_state = S2;
-            else     new_state = S3;                       
+      S5:   if (  a) new_state = S2;   
+            else     new_state = IDLE;                     
     endcase
   end
 
-  assign detected = (state == S6);
+  always_ff @ (posedge clk)
+    if (rst)
+        detected <= '0;
+    else 
+        detected <= (state == S5 && a);
 
   always_ff @ (posedge clk)
     if (rst)

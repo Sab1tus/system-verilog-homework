@@ -72,16 +72,16 @@ module sort_floats_using_fsm (
     
         case (state)
         S1  : begin 
-            f_le_a = sorted[0]; 
-            f_le_b = sorted[1]; 
+            f_le_a = sorted [0]; 
+            f_le_b = sorted [1]; 
         end
         S2  : begin 
-            f_le_a = sorted[1]; 
-            f_le_b = sorted[2]; 
+            f_le_a = sorted [1]; 
+            f_le_b = sorted [2]; 
         end
         S3  : begin 
-            f_le_a = sorted[0]; 
-            f_le_b = sorted[1]; 
+            f_le_a = sorted [0]; 
+            f_le_b = sorted [1]; 
         end
         endcase
     end

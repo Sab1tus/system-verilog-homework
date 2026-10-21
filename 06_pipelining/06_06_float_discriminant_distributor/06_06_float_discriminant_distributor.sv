@@ -67,7 +67,7 @@ module float_discriminant_distributor (
 
             always_ff @ (posedge clk)
                 if (rst)
-                    inst_arg_vld [i] <= 1'b0;
+                    inst_arg_vld [i] <= '0;
                 else
                     inst_arg_vld [i] <= arg_vld && (cnt == i);
 

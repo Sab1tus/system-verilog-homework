@@ -38,9 +38,9 @@ module formula_2_fsm
 
     enum logic [2:0]
     {
-        st_idle       = 3'd0,
-        st_wait_c_res = 3'd1,
-        st_wait_bc_res = 3'd2,
+        st_idle         = 3'd0,
+        st_wait_c_res   = 3'd1,
+        st_wait_bc_res  = 3'd2,
         st_wait_abc_res = 3'd3
     }
     state, next_state;
@@ -50,10 +50,10 @@ module formula_2_fsm
         next_state = state;
 
         case (state)
-        st_idle         : if ( arg_vld     ) next_state = st_wait_c_res ;
-        st_wait_c_res   : if ( isqrt_y_vld ) next_state = st_wait_bc_res ;
+        st_idle         : if ( arg_vld     ) next_state = st_wait_c_res   ;
+        st_wait_c_res   : if ( isqrt_y_vld ) next_state = st_wait_bc_res  ;
         st_wait_bc_res  : if ( isqrt_y_vld ) next_state = st_wait_abc_res ;
-        st_wait_abc_res : if ( isqrt_y_vld ) next_state = st_idle       ;
+        st_wait_abc_res : if ( isqrt_y_vld ) next_state = st_idle         ;
         endcase
     end
 

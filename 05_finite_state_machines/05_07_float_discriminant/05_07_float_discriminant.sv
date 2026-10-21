@@ -46,7 +46,8 @@ module float_discriminant (
         WAIT_BB,
         WAIT_4AC,
         WAIT_RES
-    } state, next_state;
+    } 
+    state, next_state;
 
     //Multiplication module interface
     logic  [FLEN - 1:0]  mult_a, mult_b;
@@ -54,8 +55,6 @@ module float_discriminant (
     logic  [FLEN - 1:0]  mult_res;
     logic                mult_down_valid;
     logic                mult_busy, mult_err;
-
-
 
     //Substraction module interface
     logic  [FLEN - 1:0]  sub_a, sub_b;
@@ -145,7 +144,7 @@ module float_discriminant (
     if (state == WAIT_AC && mult_down_valid) 
         temp_reg <= mult_res;
 
-    if (state == WAIT_BB && mult_down_valid) 
+    else if (state == WAIT_BB && mult_down_valid) 
         temp_reg <= mult_res;
     end
 

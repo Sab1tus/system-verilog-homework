@@ -12,7 +12,7 @@ module put_in_order
            [ width    - 1 : 0 ] up_data,
 
     output                      down_vld,
-    output [ width   - 1 : 0 ]  down_data
+    output [ width   - 1 : 0  ] down_data
 );
 
     // Task:
@@ -34,7 +34,7 @@ module put_in_order
 
     logic [   width - 1:0] buf_data [n_inputs];
 
-    logic [n_inputs -1 :0] buf_vld;
+    logic [ n_inputs -1:0] buf_vld;
 
     logic                  down_vld_comb;
     logic [   width - 1:0] down_data_comb;
@@ -50,7 +50,7 @@ module put_in_order
             down_data_comb = buf_data [ptr];
         end
 
-        else if (up_vlds[ptr]) begin
+        else if (up_vlds [ptr]) begin
             down_vld_comb  = 1'b1;
             down_data_comb = up_data [ptr];
         end
@@ -87,7 +87,8 @@ module put_in_order
             end
     end
 
-    //Get data into buffer in case it's not current channel or the data've been read
+    //Get data into buffer in case it's not current channel or 
+    //if the data've been read
 
     always_ff @ (posedge clk) 
         for (int i = 0; i < n_inputs; i++) begin
