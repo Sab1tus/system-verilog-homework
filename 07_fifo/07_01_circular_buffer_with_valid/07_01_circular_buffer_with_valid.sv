@@ -99,5 +99,34 @@ module circular_buffer_with_valid
     // with support for valid interface. A module should move
     // the pointer only in cases of valid data transfer.
 
+    localparam                   ptr_width = $clog2 (depth);
+    localparam [ptr_width - 1:0] max_ptr   = ptr_width' (depth - 1);
 
+    logic [ptr_width - 1:0] ptr;
+    logic [    depth - 1:0] vld;
+
+    always_ff @ (posedge clk or posedge rst) begin
+        if (rst)
+            ptr <= '0;
+        else
+            ptr <= ( ptr == max_ptr ) ? '0 : ptr + 1'b1;
+    end
+
+    logic [width - 1:0] data [0:depth - 1];
+
+    always_ff @ (posedge clk)
+        if (in_valid)
+            data [ptr] <= in_data;
+    
+    always_ff @ (posedge clk or posedge rst) begin
+        if (rst)
+            vld <= '0;
+        else begin
+            vld [ptr] <= in_valid;
+        end
+    end
+
+    assign out_valid = vld  [ptr];
+    assign out_data  = data [ptr];
+    
 endmodule
