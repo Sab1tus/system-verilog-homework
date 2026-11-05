@@ -33,5 +33,19 @@ module halve_tokens_with_flow_control
     // down_data      ->   0100_0100_0001_0000
     // up_ready       ->   1111_1111_0101_1000
 
+    wire  handshake = up_valid & up_ready;
+    logic even_reg;
+
+    always_ff @ (posedge clk) begin
+        if (rst)
+            even_reg <= '0;
+        else if (up_token & handshake)
+            even_reg <= ~even_reg;
+    end
+
+    assign up_ready = even_reg ? down_ready : 1'b1;
+
+    assign down_valid = up_valid;
+    assign down_data  = handshake & up_token & even_reg;
 
 endmodule

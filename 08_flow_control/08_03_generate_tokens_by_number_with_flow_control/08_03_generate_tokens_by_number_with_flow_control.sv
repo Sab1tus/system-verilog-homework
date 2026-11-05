@@ -24,4 +24,23 @@ module generate_tokens_by_number_with_flow_control
     // transfer tokens.
 
 
+    logic [WIDTH-1 : 0] cnt;
+
+    wire up_handshake   = up_valid   & up_ready;
+    wire down_handshake = down_valid & down_ready;
+
+    always_ff @(posedge clk) begin
+        if (rst)
+            cnt <= '0;
+        else if (up_handshake)
+            cnt <= n_tokens;
+        else if (down_handshake)
+            cnt <= cnt - 1'b1;
+    end
+
+    assign up_ready   = (cnt == '0);
+
+    assign down_valid = (cnt > '0);
+    assign down_token = (cnt > '0);
+
 endmodule
